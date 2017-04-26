@@ -20,7 +20,7 @@ requests.packages.urllib3.disable_warnings()  # supress https warnings
 ######################################################################
 a = [{
       "partnerOrderId": "xxxxxx",
-    "productType": "SecureSiteStarter",
+    "productType": "hujhuuu",
     "csr": "dgdghdfh",
     "serverType": "Apache",
     "validityPeriodDays": 365,
