@@ -11,7 +11,7 @@ Dependency: UtilsLib.py in the same directory as that of script
 '''
 from requests.exceptions import ConnectionError
 
-from  UtilsLib import Utils
+from  UtilsLibFuzzing import Utils
 import time
 import requests
 import sys
