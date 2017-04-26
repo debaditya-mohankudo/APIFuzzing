@@ -7,7 +7,7 @@ Usage: take an input dictionary/json ( all valid inputs)
 Note: 'yield' is heavily used, helps to separate test data creation logic from use
 
 
-__maintainer__: debaditya
+__maintainer__: debadityamohankudo+github at gmail dot com
 """
 import pickle
 import os
