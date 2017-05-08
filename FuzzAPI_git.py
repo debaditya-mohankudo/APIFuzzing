@@ -30,7 +30,7 @@ a = [{
       "sans": None
                },
     "org": {
-      "orgName": "xxxxxx",
+      "orgName": "$xxxxxx$",
       "orgUnit": "Eng",
       "address": {
         "addressLine1": "4201 norwalk dr1",
@@ -40,7 +40,7 @@ a = [{
         "city": "san jose",
         "state": "california",
         "country": "us",
-        "zip": "95129"
+        "zip": "$95129$"
       }
       }
 
@@ -79,7 +79,7 @@ if True:
     socket.socket = socks.socksocket
 ########################################################################
 counter = 0
-for postdata, mal_string, key in u.postdata_generator_with_insecure_values_ee(a, mal_file):
+for postdata, mal_string, key in u.generator_with_insecure_values_POST_req(a, mal_file):
     counter+=1
     print(key, postdata, counter)
     try:
