@@ -3,7 +3,7 @@ Set up: Works with python 2 or python 3 version  miniconda(out of box)
 Usage: take an input dictionary/json ( all valid inputs)
       return an dictionary/json ( with one value replaced by string
       from the xss/sql string file)
-      Works for commercial/EE apis
+   
 Note: 'yield' is heavily used, helps to separate test data creation logic from use
 
 
@@ -162,6 +162,7 @@ class Utils(object):
             if target_param != []:
                 for param in target_param:
                     yield value, api_url_get.replace(param, value)
+#################################################
 
 if __name__ == '__main__':
     u = Utils()
