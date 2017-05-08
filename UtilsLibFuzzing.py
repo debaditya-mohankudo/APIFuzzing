@@ -21,21 +21,13 @@ class Utils(object):
     def __init__(self):
         pass
 
-
     def postdata_generator_with_insecure_values(self, filename, input_dict, specific_params=None):
         parameters_list = specific_params  if specific_params is not None else input_dict.keys()
         for parameter in parameters_list:
-            print('-' * 60)
-            print('parameter targeted : {param}'.format(param=parameter))
-            print('-' * 60)
             for value in generate_insecure_strings(filename):
-                    print('-' * 20)
-                    print(value)
-                    print('-' * 20)
                     output_dict = input_dict.copy()
                     output_dict[parameter] = value
                     yield output_dict
-
 
     def generate_insecure_strings(self, mal_data):
         # yield is for lazy binding -> iterator pattern
@@ -51,16 +43,12 @@ class Utils(object):
             for data in mal_data:
                     yield data
 
-
-
     def write_details_to_file(self, postdata, resp, filename):
         to_write = ''
         to_write += '\n' + repr(postdata) + '\n' + '-' * 40 + '\n'
         to_write += '"' + resp + '"'
-        print(to_write)
         with open(filename, 'a') as f:
             f.write(str(to_write))
-
 
     def write_details_to_file_ee(self, filename, *args):
         for arg in args:
@@ -69,91 +57,152 @@ class Utils(object):
             with open(filename, 'a') as f:
                 f.write(str(to_write))
 
-
     def _serialize_data(self, data_object, pickle_file):
         with open(pickle_file, 'wb') as f:  # hard coded pickle name??
             pickle.dump(data_object, f)
-
 
     def _deserialize_data(self, pickle_file):
         with open(pickle_file, 'rb') as f:
             return pickle.load(f)
 
+    def replace_this_value(self, value):
+        if str(value).startswith('$') and str(value).endswith('$'):
+            return True
+        return False
 
-    def parse_json_get_items(self, a_object,
-                             str_malicious=None,
-                             key=None,
-                             get_item=True,
-                             set_item=False):
-        ''' this function does two operations
-        1. When get_item is true -> gets all key value pairs in self.list_k,
-        2. When set_item is true -> sets the value for one key to malicious
-        3. When there are duplicate keys like zip, try giving unique values
+    def get_original_value(self, value):
+        temp = value.replace('$', '')
+        try:
+            if int(temp):
+                return int(temp)
+        except:
+            pass
+        if temp == 'False':
+            return False
+        if temp == 'True':
+            return True
+        return temp
+
+    def __parse_json_and_set_value(self,
+                                   a_object=None,
+                                   str_malicious=None):
         '''
+        this will parse the json and replace the value surrounded by
+        $value$
+        '''
+        if isinstance(a_object, list):
+            for item in a_object:
+                if isinstance(item, (list, dict)):
+                    self.__parse_json_and_set_value(a_object=item,
+                                                  str_malicious=str_malicious)
+                elif self.replace_this_value(item):
+                    if self.set_value is True:
+                        if item in self.temp_holder_targets and item not in self.temp_targets_hit:
+                            a_object[a_object.index(item)] = str_malicious
+                            self.temp_targets_hit.append(item)
+                            break
+                        else:
+                            a_object[a_object.index(item)] = self.get_original_value(item)
 
-        if not hasattr(self, 'done_set_item'):
-            self.done_set_item = False  # flag if the malicious value is set- one time creation
-        if not hasattr(self, 'list_k'):
-                        self.list_k = []  # stores all key-val pairs - one time execution
-
-        if not self.done_set_item:  # if set quit the function
-            if isinstance(a_object, list):
-                for item in a_object:
-                    if isinstance(item, (list, dict)): # can list appear in list?
-                        self.parse_json_get_items(item, str_malicious, key,
-                                                  get_item, set_item)
-
-            elif isinstance(a_object, dict):
-                for item in a_object:
-                    if isinstance(a_object[item], (dict, list)):
-                        self.parse_json_get_items(a_object[item], str_malicious,
-                                                  key, get_item, set_item)
+                            #: else it ll replace all target
                     else:
-                        self.parse_json_get_items((item, a_object[item], a_object),
-                                                  str_malicious,
-                                                  key, get_item,
-                                                  set_item)
+                        #: just scan the json structure
+                        self.temp_holder_targets.append(item)
 
-            elif isinstance(a_object, tuple): # each item in  a dict is a tuple
-                key1 = str(a_object[0]) + '-' + str(a_object[1])
-                if get_item is True:
-                    if key1 not in self.list_k:
-                        self.list_k.append(key1)
+        elif isinstance(a_object, dict):
+            #: #print(a_object, 'dict')
+            for key, value in a_object.items():
+                #: #print(key, 'key')
+                if isinstance(a_object[key], (dict,list)):
+                    self.__parse_json_and_set_value(a_object=a_object[key],
+                                                    str_malicious=str_malicious)
+                elif self.replace_this_value(a_object[key]):
+                    temp = a_object[key] + key
+                    if self.set_value is True:
+                        if temp in self.temp_holder_targets and temp not in self.temp_targets_hit:
+                            a_object[key] = str_malicious
+                            self.temp_targets_hit.append(temp)
+                            break
+                        else:
+                            a_object[key] = self.get_original_value(a_object[key])
+                    else:
+                        self.temp_holder_targets.append(temp)
+                        #: just scan the json structure
 
-                elif set_item is True and not self.done_set_item:
-                    if key == key1:
-                        a_object[2][a_object[0]] = str_malicious
-                        self.done_set_item = True
+    def parse_json_and_set_value(self,
+                                 a_object=None,
+                                 str_malicious=None):
+        a_object_copy = copy.deepcopy(a_object)
+        self.temp_holder_targets = []
+        self.temp_targets_hit = []
+        self.set_value = False
+        #: scan the json to find all target values
+        self.__parse_json_and_set_value(a_object=a_object_copy)
+        #: set the values
+        self.set_value = True
+        for item in self.temp_holder_targets:
+            self.__parse_json_and_set_value(a_object=a_object_copy,
+                                            str_malicious=str_malicious)            
+            yield a_object_copy
+            a_object_copy = copy.deepcopy(a_object)
 
+    def generator_with_insecure_values_POST_req(self,
+                                                a_json,
+                                                mal_data):
+        for value in self.generate_insecure_strings(mal_data=mal_data):  
+            for mal_json in self.parse_json_and_set_value(a_object=a_json,
+                                                          str_malicious=value):
+               yield mal_json
 
-        self.done_set_item = False # reset the value after recursion is complete
-
-    def parse_json_set_items(self, a_object,
-                             str_malicious=None,
-                             key=None,
-                             get_item=False,
-                             set_item=True):
-        self.parse_json_get_items(a_object,
-                             str_malicious,
-                             key,
-                             get_item=False,
-                             set_item=True)
-
-
-    def generate_testdata_with_malicious_str_ee(self, a_json_list, str_malicious):
-        self.parse_json_get_items(a_json_list) # fills the self.list_k
-        for key in self.list_k:
-            input_json = copy.deepcopy(a_json_list) #http://stackoverflow.com/questions/184643/what-is-the-best-way-to-copy-a-list
-            self.parse_json_set_items(input_json, str_malicious, key, get_item=False, set_item=True)
-            yield input_json, key
-
-    def postdata_generator_with_insecure_values_ee(self, a_json_list, mal_data):
-        for value in self.generate_insecure_strings(mal_data):
-            for td, key in self.generate_testdata_with_malicious_str_ee(a_json_list, value):
-                yield td, value, key
-
-    def postdata_generator_with_insecure_values_get_req_ee(self, api_url_get, mal_data, target_param):
+    def generator_with_insecure_values_GET_req_ee(self, 
+                                                  api_url_get, 
+                                                  mal_data, 
+                                                  target_param):
         for value in self.generate_insecure_strings(mal_data):
             if target_param != []:
                 for param in target_param:
                     yield value, api_url_get.replace(param, value)
+
+if __name__ == '__main__':
+    u = Utils()
+    a = [{
+      "partnerOrderId": "xxxxxx",
+    "productType": "hujhuuu",
+    "csr": "dgdghdfh",
+    "serverType": "Apache",
+    "validityPeriodDays": 365,
+    "authType": "DNS",
+    "domain": {
+      "cn": "sfs.net",
+      "sans": None
+               },
+    "org": {
+      "orgName": "$xxxxxx$",
+      "orgUnit": "Eng",
+      "address": {
+        "addressLine1": "4201 norwalk dr1",
+        "addressLine2": "",
+        "addressLine3": "",
+        "phoneNumber": "",
+        "city": "$san jose$",
+        "state": "california",
+        "country": "us",
+        "zip": "95129"}
+
+      }
+     
+
+
+  ,
+       "certTransparency":{
+        "ctLogging":False
+     },
+
+    "signatureAlgorithm": "sha256WithRSAEncryption",
+    "certChainType": "MIXED",
+    "locale": None
+  }
+]
+    for p in u.generator_with_insecure_values_POST_req(a, ['maldataxx']):
+        print(p)
+
