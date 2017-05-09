@@ -38,11 +38,12 @@ a = [{
         "addressLine3": "",
         "phoneNumber": "",
         "city": "san jose",
-        "state": "california",
+        "state": "$california$",
         "country": "us",
-        "zip": "95129"
+        "zip": "95129"}
+
       }
-      }
+     
 
 
   ,
@@ -62,7 +63,7 @@ authType = 'Basic '
 auth_token = 'ssgsgsgsdhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
 api_url_enroll = 'https://xxxxxx.net/ssl/v1/enroll'
 #mal_file = ["alert}>'><script>alert(<fin2000>)</script>"]
-mal_file = 'xss.txt'
+mal_file = ['xss.txt']
 ########################################################################
 time_i = str(time.ctime()).replace(' ', '-').replace(':', '-')
 enroll_fail_file = 'Enroll_Fail_' + time_i + '.txt'
@@ -74,14 +75,15 @@ open(enroll_pass_file, 'w').close()  # create teh file if does not exist
 open(network_issues_file, 'w').close()
 import socks, socket
 
-if True:
+if False:
     socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 8899)
     socket.socket = socks.socksocket
 ########################################################################
-counter = 0
-for postdata, mal_string, key in u.postdata_generator_with_insecure_values_ee(a, mal_file):
+
+print('hi')
+for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
     counter+=1
-    print(key, postdata, counter)
+    print(postdata, counter)
     try:
         resp = requests.post(api_url_enroll,
                              json=postdata,
@@ -95,10 +97,7 @@ for postdata, mal_string, key in u.postdata_generator_with_insecure_values_ee(a,
         print(resp.status_code)
 
         u.write_details_to_file_ee(outputfile,
-                                   '=BEGIN=' * 5,
-                                   'Post url::' + api_url_enroll,
-                                   'POST Data::' , postdata,
-                                   'malicious string :original key-value::' + mal_string +':' + key,
+                                  
                                    'POST response : Here is output::'+ resp.text,
                                    'Status Code::' + str(resp.status_code),
                                    '=END=' * 5)
