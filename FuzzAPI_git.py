@@ -30,7 +30,7 @@ a = [{
       "sans": None
                },
     "org": {
-      "orgName": "xxxxxx",
+      "orgName": "$xxxxxx$",
       "orgUnit": "Eng",
       "address": {
         "addressLine1": "4201 norwalk dr1",
@@ -40,8 +40,13 @@ a = [{
         "city": "san jose",
         "state": "$california$",
         "country": "us",
+<<<<<<< HEAD
         "zip": "95129"}
 
+=======
+        "zip": "$95129$"
+      }
+>>>>>>> 4bed55afc435bd5e53cb3e6c3f7892c73bb69355
       }
      
 
@@ -79,9 +84,14 @@ if False:
     socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 8899)
     socket.socket = socks.socksocket
 ########################################################################
+<<<<<<< HEAD
 
 print('hi')
 for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
+=======
+counter = 0
+for postdata, mal_string, key in u.generator_with_insecure_values_POST_req(a, mal_file):
+>>>>>>> 4bed55afc435bd5e53cb3e6c3f7892c73bb69355
     counter+=1
     print(postdata, counter)
     try:
