@@ -80,7 +80,7 @@ if False:
     socket.socket = socks.socksocket
 ########################################################################
 
-
+counter = 0
 for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
     counter+=1
     print(postdata, counter)
