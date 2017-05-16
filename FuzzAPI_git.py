@@ -84,7 +84,12 @@ open(network_issues_file, 'w').close()
 ########################################################################
 counter = 0
 
+<<<<<<< HEAD
 for postdata, value, key in u.postdata_generator_with_insecure_values_ee(a, mal_file):
+=======
+counter = 0
+for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
+>>>>>>> 0eb36333cadcc759558a55de10e91b590c2b2005
     counter+=1
     #print(value)
 
