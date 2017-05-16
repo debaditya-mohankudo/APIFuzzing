@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Set Up:
     ::python2 or python 3(preferred) flavor of  (miniconda) installed
@@ -9,12 +10,17 @@ Usage:
 
 Dependency: UtilsLib.py in the same directory as that of script
 '''
-from requests.exceptions import ConnectionError
 
-from  UtilsLibFuzzing import Utils
-import time
+
+
 import requests
 import sys
+import time
+
+
+
+from  UtilsLibFuzzing_v1 import Utils
+from requests.exceptions import ConnectionError
 #####################################################################
 requests.packages.urllib3.disable_warnings()  # supress https warnings
 ######################################################################
@@ -61,9 +67,10 @@ u = Utils()  # create instance
 #######################################################################
 authType = 'Basic '
 auth_token = 'ssgsgsgsdhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
-api_url_enroll = 'https://xxxxxx.net/ssl/v1/enroll'
+api_url_enroll = 'https://ee-api1-test.ws.symclab.net/ssl/v1/enroll'
 #mal_file = ["alert}>'><script>alert(<fin2000>)</script>"]
-mal_file = ['xss.txt']
+mal_file = 'test.txt'
+
 ########################################################################
 time_i = str(time.ctime()).replace(' ', '-').replace(':', '-')
 enroll_fail_file = 'Enroll_Fail_' + time_i + '.txt'
@@ -73,17 +80,15 @@ network_issues_file = enroll_fail_file.replace('Fail', 'network_issues')
 open(enroll_fail_file, 'w').close()  # create the files if does not exist
 open(enroll_pass_file, 'w').close()  # create teh file if does not exist
 open(network_issues_file, 'w').close()
-import socks, socket
 
-if False:
-    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 8899)
-    socket.socket = socks.socksocket
 ########################################################################
+counter = 0
 
-
-for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
+for postdata, value, key in u.postdata_generator_with_insecure_values_ee(a, mal_file):
     counter+=1
-    print(postdata, counter)
+    #print(value)
+
+
     try:
         resp = requests.post(api_url_enroll,
                              json=postdata,
@@ -97,7 +102,7 @@ for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
         print(resp.status_code)
 
         u.write_details_to_file_ee(outputfile,
-                                  
+                                   postdata,
                                    'POST response : Here is output::'+ resp.text,
                                    'Status Code::' + str(resp.status_code),
                                    '=END=' * 5)
