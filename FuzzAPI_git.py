@@ -67,7 +67,7 @@ u = Utils()  # create instance
 #######################################################################
 authType = 'Basic '
 auth_token = 'ssgsgsgsdhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
-api_url_enroll = 'https://ee-api1-test.ws.symclab.net/ssl/v1/enroll'
+api_url_enroll = 'https://xxxxxxxxxxxxxxxxx.net/ssl/v1/enroll'
 #mal_file = ["alert}>'><script>alert(<fin2000>)</script>"]
 mal_file = 'test.txt'
 
