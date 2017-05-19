@@ -82,33 +82,46 @@ open(enroll_pass_file, 'w').close()  # create teh file if does not exist
 open(network_issues_file, 'w').close()
 
 ########################################################################
-
-counter = 0
-for postdata in u.generator_with_insecure_values_POST_req(a, mal_file):
-
-    counter+=1
-    #print(value)
+loop = asyncio.get_event_loop()
+set_all_requests = set()
 
 
+def post_request(url, postdata):
     try:
+        print(json.dumps(postdata, ensure_ascii=False), time.ctime())
         resp = requests.post(api_url_enroll,
                              json=postdata,
-                             verify=False,
-                             headers={'Authorization': authType + auth_token})
+                             verify=False)
 
+    except ConnectionError:
+        print('-' * 20)
+        print('----Connection Issues---')
+        print('-' * 20)
+    return resp
+
+def process_resp(resp):
         if resp.status_code in [200, 201]:
             outputfile = enroll_pass_file
         else:
             outputfile = enroll_fail_file
-        print(resp.status_code)
+            print(resp.status_code)
+            u.write_details_to_file_ee(outputfile,
+                                           resp.request.body,
+                                           'POST response : Here is output::'+ resp.text,
+                                           'Status Code::' + str(resp.status_code),
+                                           '=END=' * 5)
 
-        u.write_details_to_file_ee(outputfile,
-                                   postdata,
-                                   'POST response : Here is output::'+ resp.text,
-                                   'Status Code::' + str(resp.status_code),
-                                   '=END=' * 5)
-    except ConnectionError:
-        print('-' * 20 )
-        print('----Connection Issues---')
-        print('-' * 20 )
-        #sys.exit(-1)
+
+async def execute_async(no_of_parallel_req=1):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=no_of_parallel_req) as executor:
+        for postdata, val, key in u.postdata_generator_with_insecure_values_ee(a, mal_file):
+
+            set_all_requests.add(loop.run_in_executor(executor, post_request, api_url_enroll, postdata))
+    
+        for future in set_all_requests:
+            resp = await future
+            process_resp(resp)
+
+
+
+loop.run_until_complete(execute_async(no_of_parallel_req=4))
