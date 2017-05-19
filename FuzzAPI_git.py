@@ -91,7 +91,8 @@ def post_request(url, postdata):
         print(json.dumps(postdata, ensure_ascii=False), time.ctime())
         resp = requests.post(api_url_enroll,
                              json=postdata,
-                             verify=False)
+                             verify=False,
+                             headers={'Authorization': authType + auth_token})
 
     except ConnectionError:
         print('-' * 20)
