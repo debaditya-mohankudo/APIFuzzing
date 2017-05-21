@@ -27,7 +27,7 @@ class Utils(object):
 
 
 
-
+    """ No longer used- but dont delete : this works for a simple dict where no key is a list or dict
     def postdata_generator_with_insecure_values(self, filename, input_dict, specific_params=None):
         parameters_list = specific_params  if specific_params is not None else input_dict.keys()
         for parameter in parameters_list:
@@ -42,7 +42,7 @@ class Utils(object):
                     print('-' * 20)
                     output_dict = input_dict.copy()
                     output_dict[parameter] = value
-                    yield output_dict
+                    yield output_dict"""
 
 
     def generate_insecure_strings(self, mal_data):
