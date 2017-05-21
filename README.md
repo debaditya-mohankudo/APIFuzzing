@@ -1,6 +1,13 @@
 # APIFuzzing
 Fuzz API data ( json input supported)
 
+There are two libraries : UtilsLibFuzzing_v1 and UtilsLibFuzzing_v2
+
+UtilsLibFuzzing_v1:
+
+This traversers all the keys and replaces each with data from fuzzdb in each iteration and only one key in each iteration
+
+UtilsLibFuzzing_v2
 Now which ever values are to be targeted for fuzzing shall need to be
 surrounded by dollar.
 e.g.
