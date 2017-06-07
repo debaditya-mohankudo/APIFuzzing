@@ -15,7 +15,7 @@ import json
 import logging
 import requests
 import time
-from UtilsLibFuzzing_v1 import Utils
+from UtilsLibFuzzing import Utils
 from requests.exceptions import ConnectionError
 requests.packages.urllib3.disable_warnings()  # supress https warnings
 ######################################################################
