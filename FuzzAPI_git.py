@@ -8,7 +8,7 @@ Usage:
                -> a list of values haing malicious strings : ["alert}>'><script>alert(<fin2000>)</script>", "<script>alert(<fin2000>)</script>", ...]
                Each malicious string is set for all the keys in the json structure and posted
 
-Dependency: UtilsLibFuzzing_v1.py in the same directory as that of script
+Dependency: UtilsLibFuzzing.py in the same directory as that of script
 '''
 import concurrent.futures as cf
 import json
