@@ -2,7 +2,8 @@
 Fuzz API data ( json input supported)
 
 Dependencies:
-Python 3.5 or above
+Python 3.5 or above; 
+
 requests library; if not installed ( pip install requests)
 
 
