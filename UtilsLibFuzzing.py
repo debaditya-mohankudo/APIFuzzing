@@ -4,7 +4,7 @@ Usage: take an input dictionary/json ( all valid inputs)
       return an dictionary/json ( with one value replaced by string
       from the xss/sql string file)
       Works for commercial/EE apis
-Note: 'yield' is heavily used, helps to separate test data creation logic from use
+Note: 'yield' is heavily used, helps to separate test data creation logic from use of it
 
 
 __maintainer__: debadityamohankudo+github at gmail dot com
