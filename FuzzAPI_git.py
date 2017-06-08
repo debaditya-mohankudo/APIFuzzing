@@ -104,9 +104,9 @@ def execute_async(no_of_parallel_req,
     set_all_requests = set()
     with cf.ThreadPoolExecutor(max_workers=no_of_parallel_req) as executor:
         for postdata, val, key in u.postdata_generator_with_insecure_values_ee(orig_json, mal_source):
-            set_all_requests.add(executor.submit(post_request, 
-                                                 target_url, 
-                                                 postdata))
+            set_all_requests.add(executor.submit(post_request,  #: function that makes the request
+                                                 target_url,    #: End point url
+                                                 postdata))     #: post data with malicious data
 
         for future in set_all_requests:
             resp = future.result()
