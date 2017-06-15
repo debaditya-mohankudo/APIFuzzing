@@ -179,6 +179,56 @@ class Utils(object):
                 for param in target_param:
                     yield value, api_url_get.replace(param, value)
 
+class detection(object):
+  """docstring for detection"""
+  def __init__(self):
+    pass
+
+  def detect_in_response(self, response_obj,
+         http_status_codes=[],
+         resp_contains=None,
+         resp_time_more_than=None, #: in seconds
+         result_prefix='PASS'):
+
+    '''result_prefix - allowed values 'PASS' OR 'FAIL'
+      '''
+    checks = set()
+    if http_status_code:
+      checks.add(response_obj.status_code == http_status_code)
+    if resp_contains:
+      checks.add(resp_contains in response_obj.text)
+    if resp_time_more_than:
+      checks.add(response_obj.elapsed_time > resp_time_more_than)
+    if False in checks:
+      return ['PASS', 'FAIL'].remove(result_prefix.upper())[0]
+    else:
+      return result_prefix
+
+class logParsing(object):
+    def __init__(self):
+        pass
+
+    def parse(self, log_file):
+        now = time.ctime().replace(':','_')
+        pass_log = open('pass' + now, 'w')
+        fail_log = open('fail' + now, 'w')
+        other = open('other' + now, 'w')
+        with open(log_file, 'r') as f:
+            for line in f.readlines():
+                if 'PASS-result:' in line :
+                    pass_log.write(line)
+                elif 'FAIL-result:' in line:
+                    fail_log.write(line)
+                else:
+                    other.write(line)
+        pass_log.close()
+        fail_log.close()
+        other.close()
+
+
+
+
+    
 
 if __name__ == '__main__':
     ######################################################################
@@ -221,6 +271,8 @@ if __name__ == '__main__':
   }
 ]
 ######################################################################
+#: UNIT TESTING
+if __name__ == '__main__':    
     u = Utils()  # create instance
     mal_source = ['abcccccccccccc']
     for postdata, val, key in u.postdata_generator_with_insecure_values_ee(a, mal_source):
