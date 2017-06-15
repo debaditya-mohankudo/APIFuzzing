@@ -14,3 +14,8 @@ This traverses across all the keys in the json and replaces each with data from 
 only one key-value pair is targeted in each iteration
 
 
+How to execute:
+Step 1 : Set up FuzzAPI_git.py with valid inputs
+Step 2 : Set up the authentication ( if to be passed in headers) inside -> def post_request(url, postdata):
+Step 3: Execute FuzzAPI_git.py
+
