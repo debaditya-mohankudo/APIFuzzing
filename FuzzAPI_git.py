@@ -70,9 +70,9 @@ def post_request(url, postdata):
     '''this method is passed into the async function
     e.g.
     executor.submit(post_request,  #: function that makes the request
-                                                 target_url,    #: End point url
-                                                 postdata))
-    if the arguments of this function changes that need to reflected above. 
+                                                 target_url,    #: End point url ( arguments to teh function) post_request
+                                                 postdata)) #: postdata ( argument to the function post_request
+    if the arguments of this function changes that need to reflected. 
     '''
     try:
         print(time.ctime())
