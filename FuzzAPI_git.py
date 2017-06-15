@@ -15,7 +15,8 @@ import json
 import logging
 import requests
 import time
-from UtilsLibFuzzing import Utils
+from UtilsLibFuzzing import Utils, detection, logParsing
+
 from requests.exceptions import ConnectionError
 requests.packages.urllib3.disable_warnings()  # supress https warnings
 ######################################################################
@@ -59,10 +60,20 @@ a = [{
 ]
 ######################################################################
 u = Utils()  # create instance
-logging.basicConfig(filename='log.txt', filemode='w+', level=logging.INFO)
+dt = detection() # create instance
+lg = logParsing()
+master_log_file = 'log.txt'
+logging.basicConfig(filename=master_log_file, filemode='w+', level=logging.INFO)
 #######################################################################
 
 def post_request(url, postdata):
+    '''this method is passed into the async function
+    e.g.
+    executor.submit(post_request,  #: function that makes the request
+                                                 target_url,    #: End point url
+                                                 postdata))
+    if the arguments of this function changes that need to reflected above. 
+    '''
     try:
         print(time.ctime())
         with requests.session() as s:
@@ -80,27 +91,26 @@ def post_request(url, postdata):
 
 def process_resp(resp):
     if resp is not None:
-        req = json.dumps(json.loads(resp.request.body), ensure_ascii=False)
-        code = resp.status_code
-
-        if resp.status_code in [200, 201]:
-            result = 'PASS'
-        else:
-            result = 'FAIL'
-            print(resp.status_code)
+        req = json.dumps(json.loads(resp.request.body),
+                         ensure_ascii=False)
+        log_prefix = dt.detect_in_response(resp, http_status_codes=[200, 201], result_prefix='PASS')
     else:
         result, resp, code, req = 'UNKNOWN', 'NA', 'NA', 'NA'
+        log_prefix = 'network_issue'
+
     logging.info(time.ctime())
-    logging.info('result:{result}-resp:{resp}-request:{req}-status:{code}'.format(result=result,
+    logging.info('{l}-result:{result}-resp:{resp}-request:{req}-status:{code}'.format(result=result,
                                                                                   resp=resp,
                                                                                   req=req,
-                                                                                  code=code))
+                                                                                  code=code,
+                                                                                  l=log_prefix))
 
 
 def execute_async(no_of_parallel_req, 
                   target_url,
                   mal_source,
                   orig_json):
+    '''this can fire multiple simultaneous requests using async '''
     set_all_requests = set()
     with cf.ThreadPoolExecutor(max_workers=no_of_parallel_req) as executor:
         for postdata, val, key in u.postdata_generator_with_insecure_values_ee(orig_json, mal_source):
@@ -112,13 +122,24 @@ def execute_async(no_of_parallel_req,
             resp = future.result()
             process_resp(resp)
 
-api_url_enroll = 'https://xxxx.net/ssl/v1/enroll'
-mal_file = 'test.txt'
 
-execute_async(no_of_parallel_req=10, 
-              target_url=api_url_enroll, 
-              mal_source=mal_file,
-              orig_json=a)
+def process_log(log_file):
+    lg.parse(log_file)
+    logging.info('log parsing finished')
+
+## execution starts here ############
+
+if __name__ == '__main__':
+  
+
+  api_url_enroll = 'https://xxxx.net/ssl/v1/enroll'
+  mal_file = 'all-attacks-unix.txt'
+
+  execute_async(no_of_parallel_req=100, 
+                target_url=api_url_enroll, 
+                mal_source=mal_file,
+                orig_json=a)
+  process_log(master_log_file)
 
 
 
