@@ -193,7 +193,7 @@ class detection(object):
       '''
     checks = set()
     if http_status_code:
-      checks.add(response_obj.status_code == http_status_code)
+      checks.add(response_obj.status_code in http_status_codes)
     if resp_contains:
       checks.add(resp_contains in response_obj.text)
     if resp_time_more_than:
