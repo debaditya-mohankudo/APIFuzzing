@@ -172,7 +172,7 @@ class Utils(object):
             for td, key in self.generate_testdata_with_malicious_str_ee(a_json_list, value):
                 yield td, value, key
 
-    def postdata_generator_with_insecure_values_get_req_ee(self, api_url_get, mal_data, target_param):
+    def postdata_generator_with_insecure_values_GET_req_ee(self, api_url_get, mal_data, target_param):
         for value in self.generate_insecure_strings(mal_data):
             if target_param != []:
                 for param in target_param:
