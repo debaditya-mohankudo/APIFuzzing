@@ -20,44 +20,6 @@ from UtilsLibFuzzing import Utils, detection, logParsing
 from requests.exceptions import ConnectionError
 requests.packages.urllib3.disable_warnings()  # supress https warnings
 ######################################################################
-a = [{
-      "partnerOrderId": "xxxxxx",
-    "productType": "hujhuuu",
-    "csr": "dgdghdfh",
-    "serverType": "Apache",
-    "validityPeriodDays": 365,
-    "authType": "DNS",
-    "domain": {
-      "cn": "sfs.net",
-      "sans": None
-               },
-    "org": {
-      "orgName": "xxxxxx",
-      "orgUnit": "Eng",
-      "address": {
-        "addressLine1": "4201 norwalk dr1",
-        "addressLine2": "",
-        "addressLine3": "",
-        "phoneNumber": "",
-        "city": "san jose",
-        "state": "$california$",
-        "country": "us",
-        "zip": "95129"}
-
-      }
-     
-
-
-  ,
-       "certTransparency":{
-        "ctLogging":False
-     },
-
-    "signatureAlgorithm": "sha256WithRSAEncryption",
-    "certChainType": "MIXED",
-    "locale": None
-  }
-]
 ######################################################################
 u = Utils()  # create instance
 dt = detection() # create instance
@@ -90,20 +52,28 @@ def post_request(url, postdata):
 
 
 def process_resp(resp):
-    if resp is not None:
-        req = json.dumps(json.loads(resp.request.body),
-                         ensure_ascii=False)
+    print(resp)
+    result = ''
+    if resp:
+        try:
+            req = json.dumps(json.loads(resp.request.body), ensure_ascii=False)
+        except:
+            req = resp.request.body
+
+        code = resp.status_code
         log_prefix = dt.detect_in_response(resp, http_status_codes=[200, 201], result_prefix='PASS')
+        
     else:
         result, resp, code, req = 'UNKNOWN', 'NA', 'NA', 'NA'
-        log_prefix = 'network_issue'
+        log_prefix = 'network_issue-UNKNOWN'
 
     logging.info(time.ctime())
-    logging.info('{l}-result:{result}-resp:{resp}-request:{req}-status:{code}'.format(result=result,
-                                                                                  resp=resp,
-                                                                                  req=req,
-                                                                                  code=code,
-                                                                                  l=log_prefix))
+
+    logging.info('{l}-result:-resp:{resp}-request body:{req}-status:{code}'.format(#result=result,
+                                                                              resp=resp,
+                                                                              req=req,
+                                                                              code=code,
+                                                                              l=log_prefix))
 
 
 def execute_async(no_of_parallel_req, 
@@ -123,23 +93,25 @@ def execute_async(no_of_parallel_req,
             process_resp(resp)
 
 
+
 def process_log(log_file):
     lg.parse(log_file)
     logging.info('log parsing finished')
+    logging.disable = True
 
 ## execution starts here ############
 
 if __name__ == '__main__':
-  
+    print('hi')
+    a = {1:'hi'}
+    api_url_enroll = 'https://digiXXX.com'
+    mal_file = 'all-attacks-unix.txt'
 
-  api_url_enroll = 'https://xxxx.net/ssl/v1/enroll'
-  mal_file = 'all-attacks-unix.txt'
-
-  execute_async(no_of_parallel_req=100, 
+    execute_async(no_of_parallel_req=6, 
                 target_url=api_url_enroll, 
                 mal_source=mal_file,
                 orig_json=a)
-  process_log(master_log_file)
-
+    process_log(master_log_file)
+    print('bye')
 
 
